@@ -2,11 +2,18 @@
 
 The 2026 Spotify Challenge based on connections between songs.
 
+## Prerequisites
+
+- Node.js 25
+- Cloudflare CLI (wrangler)
+
+Install the dependencies for the backend and frontend (`npm install` in both directories) before running the commands below.
+
 ## Backend
 
 The backend is built around the Cloudflare stack, using Workers and a D1 database. 
 [Wrangler](https://developers.cloudflare.com/workers/wrangler/) is required to run the backend.
-It can be installed with Brew: `brew install wrangler`.
+It can be installed with Brew: `brew install cloudflare-wrangler`.
 
 The following Environment Variables should be set in `backend/.dev.vars`:
 
