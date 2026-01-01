@@ -24,7 +24,17 @@ function formattedDateByTrackIndex(index: number) {
   return `${month} ${day}${getSuffix(day)}`;
 }
 
-function TimelineEntry({ index, tracks, setSelectedTrack }: { index: number, tracks: any[], setSelectedTrack: (trackId: string) => void}) {
+function TimelineEntry({
+  index,
+  tracks,
+  connections,
+  setSelectedTrack,
+}: {
+  index: number;
+  connections: any;
+  tracks: any[];
+  setSelectedTrack: (trackId: string) => void;
+}) {
   if (!tracks[index]) {
     return <div>nothing here</div>;
   }
@@ -32,6 +42,7 @@ function TimelineEntry({ index, tracks, setSelectedTrack }: { index: number, tra
   const albumImages = tracks[index].track.album.images || [];
   const albumImage = albumImages[0]?.url;
 
+  console.log({connections, track: tracks[index], uri: tracks[index].track.uri, connection: connections[tracks[index].track.uri]})
   return (
     <div className="relative pl-8 sm:pl-32 py-6 group">
       <div id="spotify-iframe"></div>
@@ -46,7 +57,9 @@ function TimelineEntry({ index, tracks, setSelectedTrack }: { index: number, tra
 
       <div className="flex flex-col gap-2">
         <div className="font-caveat font-medium text-sm text-slate-500 mb-1 sm:mb-0">
-          {tracks[index].track.artists.map((artist: any) => artist.name).join(", ")}
+          {tracks[index].track.artists
+            .map((artist: any) => artist.name)
+            .join(", ")}
         </div>
         <div className="flex text-slate-500 gap-4">
           <div>
@@ -58,7 +71,9 @@ function TimelineEntry({ index, tracks, setSelectedTrack }: { index: number, tra
               onClick={() => setSelectedTrack(tracks[index].track.uri)}
             />
           </div>
-          <div>{tracks[index].description}</div>
+          <div>
+            <div>{connections[tracks[index].track.uri]?.[0]?.Connection}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -67,6 +82,7 @@ function TimelineEntry({ index, tracks, setSelectedTrack }: { index: number, tra
 
 export default function Home() {
   const [tracks, setTracks] = useState([]);
+  const [connections, setConnections] = useState({});
   const [selectedTrack, setSelectedTrack] = useState("");
 
   useEffect(() => {
@@ -77,6 +93,12 @@ export default function Home() {
         setTracks(reversedTracks);
         setSelectedTrack(reversedTracks[0].track.uri);
       });
+
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/2026/connections`)
+      .then((r) => r.json())
+      .then((data) => {
+        setConnections(Object.groupBy(data, (connection: any) => connection.TrackId));
+      });    
   }, []);
 
   const rowHeight = useDynamicRowHeight({ defaultRowHeight: 100 });
@@ -92,7 +114,7 @@ export default function Home() {
                 rowComponent={TimelineEntry}
                 rowCount={tracks.length}
                 rowHeight={rowHeight}
-                rowProps={{ tracks, setSelectedTrack } as any}
+                rowProps={{ tracks, setSelectedTrack, connections } as any}
               ></List>
             </div>
           </div>
