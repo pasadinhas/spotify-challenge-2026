@@ -1,5 +1,3 @@
-"use client";
-
 export default function SpotifyPlayer({ uri }: { uri: string }) {
   const uriParts = uri.split(":");
   const trackId = uriParts[uriParts.length - 1];
@@ -11,6 +9,6 @@ export default function SpotifyPlayer({ uri }: { uri: string }) {
       height="120"
       allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
       loading="lazy"
-    ></iframe>
+    />
   );
 }

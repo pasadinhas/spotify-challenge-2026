@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 
 type Bindings = {
 	spotify_challenge_2026: D1Database;
@@ -22,8 +23,8 @@ app.use('/api/*', cors());
 app.get('/api/health', (c) => c.json({ status: 'ok' }));
 
 app.get('/api/2026/playlist', async (c) => {
-	const playlistId = "2N5obIisBaX9lONucqw7SN"; // 2026
-	//const playlistId = '0E0dbVRdTkUO8sqdxGgFsU'; // 2025
+	const playlistId = '2N5obIisBaX9lONucqw7SN'; // 2026
+	// const playlistId = '0E0dbVRdTkUO8sqdxGgFsU'; // 2025
 
 	const token = await getSpotifyToken(c.env);
 	const requestOptions = {
@@ -36,7 +37,7 @@ app.get('/api/2026/playlist', async (c) => {
 		const spotifyRes = await fetch(nextUrl, requestOptions);
 
 		if (!spotifyRes.ok) {
-			return c.json({ error: 'Failed to fetch from Spotify' }, spotifyRes.status);
+			return c.json({ error: 'Failed to fetch from Spotify' }, spotifyRes.status as ContentfulStatusCode);
 		}
 
 		const data: any = await spotifyRes.json();
