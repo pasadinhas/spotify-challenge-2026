@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Connections } from "./Timeline";
 
 function formattedDateByTrackIndex(index: number) {
@@ -67,19 +68,19 @@ function TimelineEntry({
             .map((artist: SpotifyApi.ArtistObjectSimplified) => artist.name)
             .join(", ")}
         </div>
-        <div className="flex text-slate-500 gap-4">
-          <div>
-            <img
-              className="rounded"
-              src={albumImage}
-              width={128}
-              alt=""
-              onClick={() => setSelectedTrack(trackUri)}
-            />
-          </div>
-          <div>
-            <div>{connections[track.uri]?.[0]?.Connection}</div>
-          </div>
+        <div className="flex gap-4">
+          <Image
+            className="rounded"
+            src={albumImage}
+            width={128}
+            height={128}
+            alt={track.name}
+            onClick={() => setSelectedTrack(trackUri)}
+            style={{ cursor: "pointer" }}
+          />
+          <p className="text-sm text-slate-400">
+            {connections[track.uri]?.[0]?.Connection}
+          </p>
         </div>
       </div>
     </div>
