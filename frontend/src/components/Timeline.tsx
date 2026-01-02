@@ -15,7 +15,7 @@ export type Connections = Partial<Record<string, Connection[]>>;
 type RowProps = Omit<TimelineEntryProps, "index">;
 
 // Re-type the List component to fix react-window's broken rowProps types
-const TypedList = ReactWindowList as React.ComponentType<{
+const List = ReactWindowList as React.ComponentType<{
   rowComponent: typeof TimelineEntry;
   rowCount: number;
   rowHeight: ReturnType<typeof useDynamicRowHeight>;
@@ -51,7 +51,7 @@ export default function Timeline() {
     <>
       <SpotifyPlayer uri={selectedTrack} />
       <div className="-my-6">
-        <TypedList
+        <List
           rowComponent={TimelineEntry}
           rowCount={tracks.length}
           rowHeight={rowHeight}

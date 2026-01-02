@@ -1,5 +1,5 @@
-export const dynamic = 'force-dynamic';
-export const runtime = 'edge';
+export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -31,7 +31,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
-        <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+        <script
+          src="https://open.spotify.com/embed/iframe-api/v1"
+          async
+        ></script>
       </body>
     </html>
   );

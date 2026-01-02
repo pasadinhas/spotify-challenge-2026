@@ -60,11 +60,11 @@ function TimelineEntry({
         <time className="sm:absolute left-0 translate-y-0.5 inline-flex items-center justify-center text-xs font-semibold uppercase w-20 h-6 mb-3 sm:mb-0 text-emerald-600 bg-slate-900 rounded-full">
           {getFormattedDate()}
         </time>
-        <div className="text-xl font-bold text-white-900">{track.name}</div>
+        <div className="text-xl font-bold text-white">{track.name}</div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="font-caveat font-medium text-sm text-slate-500 mb-1 sm:mb-0">
+        <div className="font-medium text-sm text-slate-500 mb-1 sm:mb-0">
           {tracks[index].track.artists
             .map((artist: SpotifyApi.ArtistObjectSimplified) => artist.name)
             .join(", ")}
