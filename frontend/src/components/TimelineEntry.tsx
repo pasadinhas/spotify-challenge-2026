@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Image from "next/image";
 import { Connections } from "./Timeline";
 
@@ -14,6 +15,12 @@ function TimelineEntry({
   connections,
   setSelectedTrack,
 }: TimelineEntryProps) {
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [connectionText, setConnectionText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   if (!tracks[index]?.track) {
     return <div>nothing here</div>;
   }
@@ -46,6 +53,66 @@ function TimelineEntry({
   const albumImages = track.album.images || [];
   const albumImage = albumImages[0]?.url;
   const trackUri = track.uri;
+  const existingConnection = connections[track.uri]?.[0];
+  const hasConnection = existingConnection?.Connection != null;
+
+  const saveConnection = async (text: string) => {
+    setErrorMessage(null);
+    const password = window.prompt("Enter password:");
+    if (!password) return;
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/2026/connections`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            trackId: trackUri,
+            connection: text,
+            password,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        setErrorMessage(
+          response.status === 403
+            ? "Wrong password"
+            : "Something went wrong. Please try again."
+        );
+        return;
+      }
+
+      setIsFormOpen(false);
+      setIsEditing(false);
+      setConnectionText("");
+      setErrorMessage(null);
+      window.location.reload();
+    } catch {
+      setErrorMessage("Could not connect to server. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmit = () => saveConnection(connectionText);
+  const handleDelete = () => saveConnection("");
+
+  const openEditForm = () => {
+    setConnectionText(existingConnection?.Connection || "");
+    setIsEditing(true);
+    setIsFormOpen(true);
+    setErrorMessage(null);
+  };
+
+  const closeForm = () => {
+    setIsFormOpen(false);
+    setIsEditing(false);
+    setConnectionText("");
+    setErrorMessage(null);
+  };
 
   console.log({
     connections,
@@ -71,17 +138,73 @@ function TimelineEntry({
         </div>
         <div className="flex gap-4">
           <Image
-            className="rounded"
+            className="rounded shrink-0"
             src={albumImage}
             width={128}
             height={128}
             alt={track.name}
             onClick={() => setSelectedTrack(trackUri)}
-            style={{ cursor: "pointer" }}
+            style={{ cursor: "pointer", width: 128, height: 128 }}
           />
-          <p className="text-sm text-slate-400">
-            {connections[track.uri]?.[0]?.Connection}
-          </p>
+          {isFormOpen ? (
+            <div className="flex flex-col gap-2 w-full">
+              <textarea
+                className="w-full p-2 text-sm bg-slate-800 border border-slate-600 rounded text-white placeholder-slate-400 resize-none"
+                placeholder="What's the connection to the previous track?"
+                value={connectionText}
+                onChange={(e) => setConnectionText(e.target.value)}
+                rows={3}
+              />
+              <div className="flex gap-2">
+                <button
+                  className="px-3 py-1 text-sm bg-indigo-600 hover:bg-indigo-700 text-white rounded transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting || !connectionText.trim()}
+                >
+                  {isSubmitting ? "Saving..." : "Submit"}
+                </button>
+                <button
+                  className="px-3 py-1 text-sm bg-slate-700 hover:bg-slate-600 text-white rounded transition-colors cursor-pointer"
+                  onClick={closeForm}
+                >
+                  Cancel
+                </button>
+                {isEditing && (
+                  <button
+                    className="px-3 py-1 text-sm bg-red-600 hover:bg-red-700 text-white rounded transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleDelete}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "..." : "Delete"}
+                  </button>
+                )}
+              </div>
+              {errorMessage && (
+                <p className="text-sm text-red-400 bg-red-950/50 px-3 py-2 rounded border border-red-800">
+                  {errorMessage}
+                </p>
+              )}
+            </div>
+          ) : hasConnection ? (
+            <div className="flex flex-col gap-2">
+              <p className="text-sm text-slate-400">
+                {existingConnection?.Connection}
+              </p>
+              <button
+                className="text-xs text-slate-500 hover:text-slate-400 transition-colors cursor-pointer self-start"
+                onClick={openEditForm}
+              >
+                Edit
+              </button>
+            </div>
+          ) : (
+            <button
+              className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors cursor-pointer"
+              onClick={() => setIsFormOpen(true)}
+            >
+              + Add a connection
+            </button>
+          )}
         </div>
       </div>
     </div>

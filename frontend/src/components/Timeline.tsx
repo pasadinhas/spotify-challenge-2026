@@ -6,6 +6,7 @@ import SpotifyPlayer from "@/components/SpotifyPlayer";
 import TimelineEntry, { TimelineEntryProps } from "@/components/TimelineEntry";
 
 type Connection = {
+  Id: number;
   TrackId: string;
   Connection: string;
 };
