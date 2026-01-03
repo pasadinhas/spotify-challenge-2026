@@ -57,29 +57,29 @@ app.get('/api/2026/connections', async (c) => {
 app.post('/api/2026/connections', async (c) => {
 	const { trackId, connection, password } = await c.req.json();
 	if (!password || password !== c.env.API_WRITE_PASSWORD) {
-		return c.json({
-			status: 'error',
-			code: 'unauthorized',
-			error: "This request was not successfully authenticated",
-		}, 403);
+		return c.json(
+			{
+				status: 'error',
+				code: 'unauthorized',
+				error: 'This request was not successfully authenticated',
+			},
+			403
+		);
 	}
-	const errors = [];
 	if (!trackId) {
-		errors.push('$.trackId: field is required.');
+		return c.json(
+			{
+				status: 'error',
+				code: 'badRequest',
+				error: '$.trackId: field is required.',
+			},
+			400
+		);
 	}
-	if (!connection) {
-		errors.push('$.connection: field is required.');
-	}
-	if (errors.length > 0) {
-		return c.json({
-			status: 'error',
-			code: 'badRequest',
-			errors,
-		}, 400);
-	}
+	// connection can be empty string (for "delete" operations)
 	const r = await c.env.spotify_challenge_2026
 		.prepare('INSERT INTO Connections (TrackId, Connection) VALUES (?, ?) RETURNING *')
-		.bind(trackId, connection)
+		.bind(trackId, connection ?? '')
 		.run();
 	return c.json(r.results?.[0]);
 });
