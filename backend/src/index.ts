@@ -49,6 +49,50 @@ app.get('/api/2026/playlist', async (c) => {
 	return c.json(tracks);
 });
 
+const PLAYLISTS = {
+	'2fFCa8euP1YhQX3WPmEsz7': '2024',
+	'0E0dbVRdTkUO8sqdxGgFsU': '2025',
+	'2N5obIisBaX9lONucqw7SN': '2026',
+} as const;
+
+app.get('/api/all-tracks', async (c) => {
+	const token = await getSpotifyToken(c.env);
+	const requestOptions = {
+		headers: { Authorization: `Bearer ${token}` },
+	};
+
+	const allTracks: Array<{
+		trackName: string;
+		artists: string;
+		playlist: string;
+	}> = [];
+
+	for (const [playlistId, year] of Object.entries(PLAYLISTS)) {
+		let nextUrl: string | null = `https://api.spotify.com/v1/playlists/${playlistId}/tracks`;
+
+		while (nextUrl) {
+			const spotifyRes = await fetch(nextUrl, requestOptions);
+			if (!spotifyRes.ok) break;
+
+			const data: any = await spotifyRes.json();
+			nextUrl = data.next;
+
+			for (const item of data.items) {
+				const track = item.track;
+				if (!track) continue;
+
+				allTracks.push({
+					trackName: track.name,
+					artists: track.artists?.map((a: any) => a.name).join(', ') || '',
+					playlist: year,
+				});
+			}
+		}
+	}
+
+	return c.json(allTracks);
+});
+
 app.get('/api/2026/connections', async (c) => {
 	const { results } = await c.env.spotify_challenge_2026.prepare('SELECT Max(Id) as Id, * FROM Connections GROUP BY TrackId').all();
 	return c.json(results);
