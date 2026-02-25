@@ -121,13 +121,6 @@ function TimelineEntry({
     setErrorMessage(null);
   };
 
-  console.log({
-    addedBy,
-    connections,
-    track,
-    uri: track.uri,
-    connection: connections[track.uri],
-  });
   return (
     <div className="relative pl-8 sm:pl-32 py-6 group">
       <div id="spotify-iframe"></div>
