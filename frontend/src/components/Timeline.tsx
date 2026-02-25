@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { List as ReactWindowList, useDynamicRowHeight } from "react-window";
+import { useEffect, useState } from "react";
 import SpotifyPlayer from "@/components/SpotifyPlayer";
 import Search from "@/components/Search";
-import TimelineEntry, { TimelineEntryProps } from "@/components/TimelineEntry";
+import TimelineEntry from "@/components/TimelineEntry";
 
 type Connection = {
   Id: number;
@@ -13,16 +12,6 @@ type Connection = {
 };
 
 export type Connections = Partial<Record<string, Connection[]>>;
-
-type RowProps = Omit<TimelineEntryProps, "index">;
-
-// Re-type the List component to fix react-window's broken rowProps types
-const List = ReactWindowList as React.ComponentType<{
-  rowComponent: typeof TimelineEntry;
-  rowCount: number;
-  rowHeight: ReturnType<typeof useDynamicRowHeight>;
-  rowProps: RowProps;
-}>;
 
 export default function Timeline() {
   const [tracks, setTracks] = useState([]);
@@ -48,8 +37,6 @@ export default function Timeline() {
       });
   }, []);
 
-  const rowHeight = useDynamicRowHeight({ defaultRowHeight: 100 });
-
   return (
     <>
       {isSearchOpen ? (
@@ -64,12 +51,15 @@ export default function Timeline() {
       )}
       <SpotifyPlayer uri={selectedTrack} />
       <div className="-my-6">
-        <List
-          rowComponent={TimelineEntry}
-          rowCount={tracks.length}
-          rowHeight={rowHeight}
-          rowProps={{ tracks, setSelectedTrack, connections }}
-        />
+        {tracks.map((_, index) => (
+          <TimelineEntry
+            key={index}
+            index={index}
+            tracks={tracks}
+            setSelectedTrack={setSelectedTrack}
+            connections={connections}
+          />
+        ))}
       </div>
     </>
   );
