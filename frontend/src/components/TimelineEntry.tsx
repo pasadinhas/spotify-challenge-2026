@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Image from "next/image";
+import ReactMarkdown from "react-markdown";
 import { Connections } from "./Timeline";
 
 export type TimelineEntryProps = {
@@ -193,9 +194,11 @@ function TimelineEntry({
             </div>
           ) : hasConnection ? (
             <div className="flex flex-col gap-2">
-              <p className="text-sm text-slate-400">
-                {existingConnection?.Connection}
-              </p>
+              <div className="text-sm text-slate-400 prose prose-invert prose-sm max-w-none">
+                <ReactMarkdown>
+                  {existingConnection?.Connection || ""}
+                </ReactMarkdown>
+              </div>
               <button
                 className="text-xs text-slate-500 hover:text-slate-400 transition-colors cursor-pointer self-start"
                 onClick={openEditForm}
